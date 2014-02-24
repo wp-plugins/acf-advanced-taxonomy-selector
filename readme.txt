@@ -11,7 +11,7 @@ This plugin allows you to create a field where users can select from multiple ta
 
 == Description ==
 
-{{description}}
+A more advanced taxonomy selector for ACF. It allows you to create a field where users can select terms spanning multiple taxonomies. An autocomplete field is coming soon too!
 
 = Compatibility =
 
