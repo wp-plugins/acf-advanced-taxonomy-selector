@@ -354,6 +354,15 @@ class acf_field_advanced_taxonomy_selector extends acf_Field
 	}
 
 
+	function update_value($post_id, $field, $value) {
+		if( $value == array( 0 => '' ) ) {
+			return '';
+		}
+
+		return $value;
+	}
+
+
 
 }
 
