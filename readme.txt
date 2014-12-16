@@ -1,47 +1,40 @@
 === Advanced Custom Fields: Advanced Taxonomy Selector Field ===
-Contributors: {{wp_user_name}}
-Tags:
-Requires at least: 3.4
-Tested up to: 3.9
+Contributors: danielpataki
+Tags: selector, fonts, google
+Requires at least: 3.5
+Tested up to: 4.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-This plugin allows you to create a field where users can select from multiple taxonomies
+This plugin allows you to create a field where users can select from multiple taxonomies or select multiple terms from multiple taxonomies
 
 == Description ==
 
-A more advanced taxonomy selector for ACF. It allows you to create a field where users can select terms spanning multiple taxonomies. An autocomplete field is coming soon too!
+A more advanced taxonomy selector for ACF. It allows you to create a field where users can select terms spanning multiple taxonomies.
 
 = Compatibility =
 
-This add-on will work with:
+This ACF field type is compatible with:
 
-* version 4 and up
-* version 3 and bellow
+* ACF 5
+* ACF 4
 
 == Installation ==
 
-This add-on can be treated as both a WP plugin and a theme include.
+= Installation =
 
-= Plugin =
-1. Copy the 'acf-advanced_taxonomy_selector' folder into your plugins folder
-2. Activate the plugin via the Plugins admin page
-
-= Include =
-1.	Copy the 'acf-advanced_taxonomy_selector' folder into your theme folder (can use sub folders). You can place the folder anywhere inside the 'wp-content' directory
-2.	Edit your functions.php file and add the code below (Make sure the path is correct to include the acf-advanced_taxonomy_selector.php file)
-
-`
-add_action('acf/register_fields', 'my_register_fields');
-
-function my_register_fields()
-{
-	include_once('acf-advanced_taxonomy_selector/acf-advanced_taxonomy_selector.php');
-}
-`
+1. Copy the `acf-advanced_taxonomy_selector` folder into your `wp-content/plugins` folder
+2. Activate the Advanced Taxonomy Selector plugin via the plugins admin page
+3. Create a new field via ACF and select the Advanced Taxonomy Selector type
+4. Please refer to the description for more info regarding the field type settings
 
 == Changelog ==
 
-= 0.0.1 =
+### Changelog
+= 1.0 =
 * Initial Release.
+
+= 2.0 =
+* Dropped ACF 3 support
+* Added ACF 5 support
