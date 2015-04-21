@@ -1,33 +1,51 @@
 <?php
+/**
+ * ACF 4 Field Class
+ *
+ * This file holds the class required for our field to work with ACF 4
+ *
+ * @author Daniel Pataki
+ * @since 3.0.0
+ *
+ */
+
+/**
+ * ACF 4 Taxonomy Selector Class
+ *
+ * The taxonomy selector class enables users to select terms and taxonomies.
+ * This is the class that is used for ACF 4.
+ *
+ * @author Daniel Pataki
+ * @since 3.0.0
+ *
+ */
 
 class acf_field_advanced_taxonomy_selector extends acf_field {
 
-	// vars
-	var $settings, // will hold info such as dir / path
-		$defaults; // will hold default field options
+	var $settings;
+	var $defaults;
 
 
-	/*
-	*  __construct
-	*
-	*  Set name / label needed for actions / filters
-	*
-	*  @since	3.6
-	*  @date	23/01/13
-	*/
+	/**
+	 * Field Constructor
+	 *
+	 * Sets basic properties and runs the parent constructor
+	 *
+	 * @author Daniel Pataki
+	 * @since 3.0.0
+	 *
+	 */
+	function __construct() {
 
-	function __construct()
-	{
-		// vars
 		$this->name = 'advanced_taxonomy_selector';
-		$this->label = __('Advanced Taxonomy Selector');
-		$this->category = __("Relational",'acf'); // Basic, Content, Choice, etc
+		$this->label = __('Advanced Taxonomy Selector', 'acf-advanced-taxonomy-selector');
+		$this->category = __("Relational",'acf');
 		$this->defaults = array(
 			'taxonomies' => '',
 			'data_type' => 'terms',
 			'field_type' => 'multiselect',
 			'allow_null' => true,
-			'post_tyoe'  => false,
+			'post_type'  => false,
 			'return_value' => 'term_id'
 		);
 
@@ -36,155 +54,169 @@ class acf_field_advanced_taxonomy_selector extends acf_field {
 	}
 
 
-	/*
-	*  create_options()
-	*
-	*  Create extra options for your field. This is rendered when editing a field.
-	*  The value of $field['name'] can be used (like below) to save extra data to the $field
-	*
-	*  @type	action
-	*  @since	3.6
-	*  @date	23/01/13
-	*
-	*  @param	$field	- an array holding all the field's data
-	*/
-
-	function create_options( $field )
-	{
-		// defaults?
-		/*
-		$field = array_merge($this->defaults, $field);
-		*/
-
-		// key is needed in the field names to correctly save the data
+	/**
+	 * Field Options
+	 *
+	 * Creates the options for the field, they are shown when the user
+	 * creates a field in the back-end. Currently there are six fields.
+	 *
+	 * The Type sets the field to a term or a taxonomy selector
+	 *
+	 * The Taxonomies setting will put a restriction on the taxonomies shown
+	 *
+	 * The Restrict To Post Type setting allows you to restrict to taxonomies
+	 * defined for the selected post types
+	 *
+	 * The Field Type setting sets the type of field shown to the user
+	 *
+	 * By checking Allow Null you can make sure that users can select an empty
+	 * value
+	 *
+	 * The Return Value determines how the value is returned to be used on the
+	 * front end
+	 *
+	 * @param array $field The details of this field
+	 * @author Daniel Pataki
+	 * @since 3.0.0
+	 *
+	 */
+	function create_options( $field ) {
 		$key = $field['name'];
-
-
-		// Create Field Options HTML
 		?>
-<tr class="field_option field_option_<?php echo $this->name; ?>">
-	<td class="label">
-		<label><?php _e("Type",'acf'); ?></label>
-	</td>
-	<td>
-		<?php
 
-		do_action('acf/create_field', array(
-			'type'		=>	'radio',
-			'name'		=>	'fields['.$key.'][data_type]',
-			'value'		=>	$field['data_type'],
-			'choices' =>  array(
-				'terms' => __( 'Choose Terms', 'acf' ),
-				'taxonomy'  => __( 'Choose Taxonomies', 'acf' ),
-			)
-		));
+		<!-- Type Field -->
+		<tr class="field_option field_option_<?php echo $this->name; ?>">
+			<td class="label">
+				<label><?php _e("Type",'acf-advanced-taxonomy-selector'); ?></label>
+			</td>
+			<td>
+				<?php
 
-		?>
-	</td>
-</tr>
+				do_action('acf/create_field', array(
+					'type'		=>	'radio',
+					'name'		=>	'fields['.$key.'][data_type]',
+					'value'		=>	$field['data_type'],
+					'choices' =>  array(
+						'terms' => __( 'Term Selector', 'acf-advanced-taxonomy-selector' ),
+						'taxonomy'  => __( 'Taxonomy Selector', 'acf-advanced-taxonomy-selector' ),
+					)
+				));
 
-<tr class="field_option field_option_<?php echo $this->name; ?>">
-	<td class="label">
-		<label><?php _e("Taxonomies",'acf'); ?></label>
-	</td>
-	<td>
-		<?php
+				?>
+			</td>
+		</tr>
 
-		do_action('acf/create_field', array(
-			'type'		=>	'select',
-			'name'		=>	'fields['.$key.'][taxonomies]',
-			'value'		=>	$field['taxonomies'],
-			'multiple'      =>  true,
-			'choices'       =>  $this->taxonomies_array()
-		));
+		<!-- Taxonomy Restrictions Field -->
 
-		?>
-	</td>
-</tr>
+		<tr class="field_option field_option_<?php echo $this->name; ?>">
+			<td class="label">
+				<label><?php _e("Taxonomy Restrictions",'acf-advanced-taxonomy-selector'); ?></label>
+			</td>
+			<td>
+				<?php
 
-<tr class="field_option field_option_<?php echo $this->name; ?>">
-	<td class="label">
-		<label><?php _e("Post Type Restriction",'acf'); ?></label>
-	</td>
-	<td>
-		<?php
+				do_action('acf/create_field', array(
+					'type'		=>	'select',
+					'name'		=>	'fields['.$key.'][taxonomies]',
+					'value'		=>	$field['taxonomies'],
+					'multiple'      =>  true,
+					'choices'       =>  acfats_taxonomies_array()
+				));
 
-		do_action('acf/create_field', array(
-			'type'		=>	'select',
-			'name'		=>	'fields['.$key.'][post_type]',
-			'value'		=>	$field['post_type'],
-			'choices'       =>  $this->post_types_array()
-		));
+				?>
+			</td>
+		</tr>
 
-		?>
-	</td>
-</tr>
+		<!-- Post Type Restrictions Field -->
+
+		<tr class="field_option field_option_<?php echo $this->name; ?>">
+			<td class="label">
+				<label><?php _e("Post Type Restrictions",'acf-advanced-taxonomy-selector'); ?></label>
+			</td>
+			<td>
+				<?php
+
+				do_action('acf/create_field', array(
+					'type'		=>	'select',
+					'name'		=>	'fields['.$key.'][post_type]',
+					'value'		=>	$field['post_type'],
+					'choices'   =>  acfatspost_types_array()
+				));
+
+				?>
+			</td>
+		</tr>
+
+		<!-- Field Type Field -->
 
 
+		<tr class="field_option field_option_<?php echo $this->name; ?>">
+			<td class="label">
+				<label><?php _e("Field Type",'acf-advanced-taxonomy-selector'); ?></label>
+			</td>
+			<td>
+				<?php
 
-<tr class="field_option field_option_<?php echo $this->name; ?>">
-	<td class="label">
-		<label><?php _e("Field Type",'acf'); ?></label>
-	</td>
-	<td>
-		<?php
+				do_action('acf/create_field', array(
+					'type'		=>	'select',
+					'name'		=>	'fields['.$key.'][field_type]',
+					'value'		=>	$field['field_type'],
+					'choices' =>  array(
+						'multiselect'  => __( 'Multiselect', 'acf-advanced-taxonomy-selector' ),
+						'select'       => __( 'Select', 'acf-advanced-taxonomy-selector' )
+					)
+				));
 
-		do_action('acf/create_field', array(
-			'type'		=>	'select',
-			'name'		=>	'fields['.$key.'][field_type]',
-			'value'		=>	$field['field_type'],
-			'choices' =>  array(
-				'multiselect'  => __( 'Multiselect', 'acf' ),
-				'select'       => __( 'Select', 'acf' )
-			)
-		));
+				?>
+			</td>
+		</tr>
 
-		?>
-	</td>
-</tr>
+		<!-- Allow Null Field -->
 
-<tr class="field_option field_option_<?php echo $this->name; ?>">
-	<td class="label">
-		<label><?php _e("Allow Null?",'acf'); ?></label>
-	</td>
-	<td>
-		<?php
+		<tr class="field_option field_option_<?php echo $this->name; ?>">
+			<td class="label">
+				<label><?php _e("Allow Null?",'acf-advanced-taxonomy-selector'); ?></label>
+			</td>
+			<td>
+				<?php
 
-		do_action('acf/create_field', array(
-			'type'		=>	'radio',
-			'name'		=>	'fields['.$key.'][allow_null]',
-			'value'		=>	$field['allow_null'],
-			'layout'  => 'horizontal',
-			'choices' =>  array(
-				1 => __( 'Yes', 'acf' ),
-				0  => __( 'No', 'acf' ),
-			)
-		));
+				do_action('acf/create_field', array(
+					'type'		=>	'radio',
+					'name'		=>	'fields['.$key.'][allow_null]',
+					'value'		=>	$field['allow_null'],
+					'layout'  => 'horizontal',
+					'choices' =>  array(
+						1 => __( 'Yes', 'acf-advanced-taxonomy-selector' ),
+						0  => __( 'No', 'acf-advanced-taxonomy-selector' ),
+					)
+				));
 
-		?>
-	</td>
-</tr>
+				?>
+			</td>
+		</tr>
 
-<tr class="field_option field_option_<?php echo $this->name; ?>">
-	<td class="label">
-		<label><?php _e("Return Value",'acf'); ?></label>
-	</td>
-	<td>
-		<?php
+		<!-- Return Value Field -->
 
-		do_action('acf/create_field', array(
-			'type'		=>	'radio',
-			'name'		=>	'fields['.$key.'][return_value]',
-			'value'		=>	$field['return_value'],
-			'choices' =>  array(
-				'term_id' => __( 'Term ID / Taxonomy Slug', 'acf' ),
-				'object'  => __( 'Term Object / Taxonomy Object', 'acf' ),
-			)
-		));
+		<tr class="field_option field_option_<?php echo $this->name; ?>">
+			<td class="label">
+				<label><?php _e("Return Value",'acf-advanced-taxonomy-selector'); ?></label>
+			</td>
+			<td>
+				<?php
 
-		?>
-	</td>
-</tr>
+				do_action('acf/create_field', array(
+					'type'		=>	'radio',
+					'name'		=>	'fields['.$key.'][return_value]',
+					'value'		=>	$field['return_value'],
+					'choices' =>  array(
+						'term_id' => __( 'Term ID / Taxonomy Slug', 'acf-advanced-taxonomy-selector' ),
+						'object'  => __( 'Term Object / Taxonomy Object', 'acf-advanced-taxonomy-selector' ),
+					)
+				));
+
+				?>
+			</td>
+		</tr>
 
 
 		<?php
@@ -193,36 +225,35 @@ class acf_field_advanced_taxonomy_selector extends acf_field {
 
 
 
-	/*
-	*  create_field()
-	*
-	*  Create the HTML interface for your field
-	*
-	*  @param	$field - an array holding all the field's data
-	*
-	*  @type	action
-	*  @since	3.6
-	*  @date	23/01/13
-	*/
-
-	function create_field( $field )
-	{
+	/**
+	 * Field Display
+	 *
+	 * This function takes care of displaying our field to the users, taking
+	 * the field options into account.
+	 *
+	 * @param array $field The details of this field
+	 * @author Daniel Pataki
+	 * @since 3.0.0
+	 *
+	 */
+	function create_field( $field ) {
 		call_user_func( array( $this, 'render_field_' . $field['data_type'] ), $field );
 	}
 
 
 
-	/*
-	*  Render Terms Field
-	*
-	*  Displays the field for selecting terms
-	*
-	*  @param array $field
-	*
-	*/
-
+	/**
+	 * Term Type Field Display
+	 *
+	 * Displays the field when the Type setting is set to term
+	 *
+	 * @param array $field The details of this field
+	 * @author Daniel Pataki
+	 * @since 3.0.0
+	 *
+	 */
 	function render_field_terms( $field ) {
-		$taxonomies = $this->get_taxonomies_from_selection( $field );
+		$taxonomies = acfats_get_taxonomies_from_selection( $field );
 		$multiple = ( $field['field_type'] == 'multiselect' ) ? 'multiple="multiple"' : '';
 
 		foreach( $taxonomies as $slug => $taxonomy ) {
@@ -253,16 +284,18 @@ class acf_field_advanced_taxonomy_selector extends acf_field {
 		<?php
 	}
 
-	/*
-	*  Render Taxonomy Field
-	*
-	*  Displays the field for selecting taxonomies
-	*
-	*  @param array $field
-	*
-	*/
+	/**
+	 * Taxonomy Type Field Display
+	 *
+	 * Displays the field when the Type setting is set to taxonomy
+	 *
+	 * @param array $field The details of this field
+	 * @author Daniel Pataki
+	 * @since 3.0.0
+	 *
+	 */
 	function render_field_taxonomy( $field ) {
-		$taxonomies = $this->get_taxonomies_from_selection( $field );
+		$taxonomies = acfats_get_taxonomies_from_selection( $field );
 		$multiple = ( $field['field_type'] == 'multiselect' ) ? 'multiple="multiple"' : '';
 		?>
 
@@ -285,21 +318,19 @@ class acf_field_advanced_taxonomy_selector extends acf_field {
 		<?php
 	}
 
-	/*
-	*  update_value()
-	*
-	*  This filter is applied to the $value before it is saved in the db
-	*
-	*  @type	filter
-	*  @since	3.6
-	*  @date	23/01/13
-	*
-	*  @param	$value (mixed) the value found in the database
-	*  @param	$post_id (mixed) the $post_id from which the value was loaded
-	*  @param	$field (array) the field array holding all the field options
-	*  @return	$value
-	*/
-
+	/**
+	 * Pre-Save Value Modification
+	 *
+	 * Modifies the data before it is passed to the database for saving
+	 *
+	 * @param mixed $value The value which was loaded from the database
+	 * @param int $post_id The $post_id from which the value was loaded
+	 * @param array $field The details of this field
+	 * @return mixed $value The modified value
+	 * @author Daniel Pataki
+	 * @since 3.0.0
+	 *
+	 */
 	function update_value( $value, $post_id, $field ) {
 
 		if( $value == array( 0 => '' ) ) {
@@ -311,23 +342,20 @@ class acf_field_advanced_taxonomy_selector extends acf_field {
 	}
 
 
-	/*
-	*  format_value()
-	*
-	*  This filter is appied to the $value after it is loaded from the db and before it is returned to the template
-	*
-	*  @type	filter
-	*  @since	3.6
-	*  @date	23/01/13
-	*
-	*  @param	$value (mixed) the value which was loaded from the database
-	*  @param	$post_id (mixed) the $post_id from which the value was loaded
-	*  @param	$field (array) the field array holding all the field options
-	*
-	*  @return	$value (mixed) the modified value
-	*/
-
-
+	/**
+	 * Format Value
+	 *
+	 * This filter is appied to the $value after it is loaded from the
+	 * db and before it is passed to the create_field action
+	 *
+	 * @param mixed $value The value which was loaded from the database
+	 * @param int $post_id The $post_id from which the value was loaded
+	 * @param array $field The details of this field
+	 * @return mixed $value The modified value
+	 * @author Daniel Pataki
+	 * @since 3.0.0
+	 *
+	 */
 	function format_value( $value, $post_id, $field ) {
 
 		if( empty($value) ) {
@@ -351,97 +379,6 @@ class acf_field_advanced_taxonomy_selector extends acf_field {
 		}
 
 		return $value;
-	}
-
-
-	/*
-	*  Get Taxonomies
-	*
-	*  Gets taxonomies without the built in ones, but grabs categories and tags
-	*
-	*/
-	function get_taxonomies() {
-		$taxonomies = get_taxonomies( array( '_builtin' => false, 'public' => true ), 'objects' );
-		$taxonomies['category'] = get_taxonomy('category');
-		$taxonomies['post_tag'] = get_taxonomy('post_tag');
-		return $taxonomies;
-	}
-
-	/*
-	*  Get Taxonomies Array
-	*
-	*  Gets a slug->label array of taxonomies
-	*
-	*/
-	function taxonomies_array() {
-		$taxonomies = $this->get_taxonomies();
-		$choices = array( 'all' => __( 'All Taxonomies', 'acf-advanced_taxonomy_selector' ) );
-		foreach ( $taxonomies as $slug => $taxonomy ) {
-			$choices[$slug] = $taxonomy->label;
-		}
-		return $choices;
-	}
-
-	/*
-	*  Get Post Types
-	*
-	*  Gets public post types
-	*
-	*/
-	function get_post_tyes() {
-		$post_types = get_post_types( array( 'public' => true ) );
-		return $post_types;
-	}
-
-	/*
-	*  Get Post Types Array
-	*
-	*  Gets a slug->name array of post types
-	*
-	*/
-	function post_types_array() {
-		$post_types = $this->get_post_tyes();
-		$choices = array();
-		foreach ( $post_types as $slug => $post_type ) {
-			$choices[$slug] = $post_type;
-		}
-		return $choices;
-	}
-
-
-	/*
-	*  Get Taxonomies From Selection
-	*
-	*  Gets only those taxonomies which have been selected
-	*
-	*/
-	function get_taxonomies_from_selection( $field ) {
-
-		if( !empty( $field['post_type'] ) ) {
-			$type_taxonomies = get_object_taxonomies( $field['post_type'] );
-			$all_taxonomies = get_taxonomies( array(), 'object');
-			$taxonomies = array();
-
-			if( !empty( $type_taxonomies ) ) {
-				foreach( $type_taxonomies as $slug ) {
-					$taxonomies[$slug] = $all_taxonomies[$slug];
-				}
-			}
-
-			return $taxonomies;
-		}
-
-		if( empty( $field['taxonomies'] ) || in_array( 'all', $field['taxonomies'] ) !== false ) {
-			$taxonomies = $this->get_taxonomies();
-		}
-		else {
-			$taxonomies = array();
-			foreach( $field['taxonomies'] as $taxonomy_slug ) {
-				$taxonomy = get_taxonomy( $taxonomy_slug );
-				$taxonomies[$taxonomy->name] = $taxonomy;
-			}
-		}
-		return $taxonomies;
 	}
 
 }
