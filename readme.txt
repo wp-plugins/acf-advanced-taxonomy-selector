@@ -43,7 +43,7 @@ Installing this plugin automatically is the easiest option. You can install the 
 
 == Changelog ==
 
-= 3.0.0 (2015-04-21)
+= 3.0.0 (2015-04-21) =
 * Updated for WordPress 4.2
 * Added Hungarian translation
 * Reworked structure
